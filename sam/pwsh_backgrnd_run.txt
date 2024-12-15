@@ -1,0 +1,36 @@
+Using Batch File with start /B:-->
+
+You can also create a batch file that runs your PowerShell script in the background using the start /B command.
+
+@echo off
+start /B powershell.exe -ExecutionPolicy Bypass -File "C:\Path\To\YourScript.ps1"
+
+==================
+
+1. Using VBScript as a Wrapper
+
+Creating a VBScript file to execute your PowerShell script is one of the most effective ways to ensure it runs completely hidden.
+VBScript Example:
+
+-----
+Set WshShell = CreateObject("WScript.Shell")
+WshShell.Run "powershell.exe -ExecutionPolicy Bypass -File ""C:\Path\To\YourScript.ps1""", 0, False
+-----
+
+Save this code as RunHidden.vbs and execute it. The 0 parameter ensures that no window is shown when the script runs.
+
+===================
+
+2. Using PowerShell with -WindowStyle Hidden
+
+While using the -WindowStyle Hidden option is common, it may still briefly show a window due to Windows limitations. However, it's still worth mentioning for scenarios where a quick flash is acceptable.
+
+Example Command:
+
+
+powershell.exe -ExecutionPolicy Bypass -WindowStyle Hidden -File "C:\Path\To\YourScript.ps1"
+
+
+This command attempts to run the script without displaying a window, but be aware of the potential brief visibility.
+
+
