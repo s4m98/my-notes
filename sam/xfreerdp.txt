@@ -1,0 +1,4 @@
+
+xfreerdp /v:target-IP /u:USERNAME /p:PASSWORD +clipboard
+
+xfreerdp /v:10.10.156.179 /u:thm /p:TryHackM3 +clipboard

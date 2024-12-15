@@ -1,0 +1,20 @@
+
+step 1: Direct Download link:---->
+
+   https://www.tenable.com/downloads/nessus?loginAttempted=true
+ 
+ 
+ step 2: Nessus Installation: ----
+ 
+       $ sudo dpkg -i <Nessus File>
+
+ step 3: start nessus service: ----
+ 
+     $ sudo systemctl start nessusd.service
+     
+     
+ step 4: After starting the service, 
+ 
+ go to https://kali:8834/ in your web browser to access and configure Nessus.
+ 
+ 

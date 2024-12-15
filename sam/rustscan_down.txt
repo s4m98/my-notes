@@ -1,0 +1,16 @@
+Step 1: Download the .deb file from the below links to your Kali Linux operating system.
+
+wget https://github.com/RustScan/RustScan/releases/download/2.0.1/rustscan_2.0.1_amd64.deb
+
+
+Step 2: Run the command dpkg -i on the file to install the tool.
+
+sudo dpkg -i rustscan_2.0.1_amd64.deb
+
+
+Step 3: Now use the following command to run the tool and check the help section.
+
+rustscan -h
+
+rustscan -a <IP> --range 1-65535
+

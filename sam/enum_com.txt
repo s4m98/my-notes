@@ -1,0 +1,37 @@
+###----- LINUX Enumeration --------###
+
+
+ 1. cat /etc/os-release
+ 2. hostname
+ 3. cat /etc/passwd
+ 4. cat /etc/shadow
+ 5. cat /etc/group
+ 6. whoami
+ 7. who
+ 8. ww
+ 9. id
+ 10. sudo -l
+ 11. sudo netstat
+ 12. ps axf
+
+===========================================
+
+
+###----- WINDOWS Enumeration ------###
+
+
+   1. systeminfo : (system information)
+   2. wmic qfe get Caption,Description  : (check installed updates )
+   3. net start : (check the installed and started Windows services )
+   4. whoami
+   5. whoami /priv
+   6. whoami /group
+   7. net user
+   8. net localgroup
+   9. ipconfig
+  10. netstat
+  11. net share
+ 
+ 
+ 
+ 
