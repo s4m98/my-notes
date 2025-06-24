@@ -1,0 +1,22 @@
+<!-- 311.hta -->
+<html>
+<head>
+<hta:application id="oHTA" border="thin" caption="yes" sysmenu="yes" showintaskbar="yes"/>
+<script language="VBScript">
+On Error Resume Next
+Set objShell = CreateObject("WScript.Shell")
+strRegistryPath = "HKCU\Software\MySoftware\Run\311"
+strRegistryValue = "mshta.exe " & WScript.ScriptFullName
+
+' Create the registry key if it doesn't exist
+If IsNull(objShell.RegRead(strRegistryPath)) Then
+    objShell.RegWrite strRegistryPath, "", "REG_SZ"
+End If
+
+' Write the registry value
+objShell.RegWrite strRegistryPath, strRegistryValue, "REG_SZ"
+</script>
+</head>
+<body>
+</body>
+</html>

